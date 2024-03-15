@@ -1,10 +1,15 @@
 package com.example.myapplication.di
 
+import android.content.Context
+import androidx.room.Room
 import com.example.myapplication.data.MovieApi
+import com.example.myapplication.room.FavoritosDataBase
+import com.example.myapplication.room.FavoritosDataBaseDao
 import com.example.myapplication.util.Constants.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -36,6 +41,25 @@ object AppModule {
     @Provides
     fun providesMovieApi(retrofit: Retrofit): MovieApi {
         return  retrofit.create(MovieApi::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun providesFavoritosDao(favoritosDataBase: FavoritosDataBase): FavoritosDataBaseDao {
+        return favoritosDataBase.favoritosDao()
+    }
+
+
+    //Provee la instancia de la base de datos de notas.
+
+    @Singleton
+    @Provides
+    fun providesFavoritosDatabase(@ApplicationContext context: Context): FavoritosDataBase {
+        return Room.databaseBuilder(
+            context,
+            FavoritosDataBase::class.java, "favoritos_db"
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
 }

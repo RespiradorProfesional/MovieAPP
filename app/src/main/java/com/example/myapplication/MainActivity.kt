@@ -4,8 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import com.example.myapplication.navigation.NavManager
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewModel.MoviesViewModel
@@ -18,10 +16,9 @@ class MainActivity : ComponentActivity() {
         val viewModel : MoviesViewModel by viewModels()
         setContent {
             MyApplicationTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colorScheme.background) {
-                    NavManager(viewModel)
-                }
+
+                NavManager(viewModel)
+
             }
         }
     }

@@ -23,6 +23,8 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
     // Exponer la lista de peliculas como un StateFlow para observar cambios
     val movies=_movies.asStateFlow()
 
+    var actualPage=1;
+
 
     // MutableState para contener el estado actual de la pelicula seleccionada
     var state by mutableStateOf(MovieState())
@@ -40,6 +42,17 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
             }
         }
 
+    }
+
+    fun fetchMoreMovies(){
+        viewModelScope.launch{
+            withContext(Dispatchers.IO){
+                actualPage+=1
+                val result=repo.getMovies(actualPage)
+                _movies.value= _movies.value.plus(result ?: emptyList())
+
+            }
+        }
     }
 
     fun getMovieById(id: Int){

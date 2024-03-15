@@ -16,7 +16,6 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
     }
 
-
     suspend fun getMovieById(id:Int): SingleMovieModel?{
         val response=movieApi.getMovieById(id)
         if (response.isSuccessful){
