@@ -29,10 +29,10 @@ class MainActivity : ComponentActivity() {
 
 /**
  * Cosas a hacer:
- * -En tablet se puede rotar y son 3 filas
- * -Si no tiene internet la respuesta debe fallar hacer sealed class
- * -Mejor diseño
- * -usar git
+ * -Bug al deslizar a la izquierda el panel se vuelve lila
+ * -El textField se expande fleje si pones muchos caracteres
+ * -Al buscar nada o no encontrar nada no se ve nada
+ * -Los filtros aun no funcionan, y ni si quiera se actualizan 
  */
 
 /**

@@ -45,6 +45,7 @@ import com.example.myapplication.ui.theme.SecondaryColor
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
+
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
