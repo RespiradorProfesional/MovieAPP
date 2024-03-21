@@ -24,4 +24,12 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
         return null
     }
 
+    suspend fun getMoviesByName(name :String): List<MovieData>? {
+        val response=movieApi.getMoviesByName(name)
+        if (response.isSuccessful){
+            return response.body()?.results
+        }
+        return null
+
+    }
 }

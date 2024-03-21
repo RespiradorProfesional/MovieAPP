@@ -1,17 +1,15 @@
 package com.example.myapplication.viewModel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.MovieData
+import com.example.myapplication.model.SingleMovieModel
 import com.example.myapplication.repository.MoviesRepository
-import com.example.myapplication.state.MovieState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -26,9 +24,10 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
     var actualPage=1;
 
 
-    // MutableState para contener el estado actual de la pelicula seleccionada
-    var state by mutableStateOf(MovieState())
-        private set
+    private val _singleMovie = MutableStateFlow<SingleMovieModel?>(null)
+    val singleMovie = _singleMovie.asStateFlow()
+
+
     init {
         fetchMovies(1)
     }
@@ -41,7 +40,6 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
 
             }
         }
-
     }
 
     fun fetchMoreMovies(){
@@ -55,21 +53,25 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
         }
     }
 
+    fun fetchMoviesByName(name : String){
+        viewModelScope.launch{
+            withContext(Dispatchers.IO){
+                println(name)
+                val result=repo.getMoviesByName(name)
+                _movies.value=result ?: emptyList()
+            }
+        }
+    }
+
     fun getMovieById(id: Int){
         viewModelScope.launch{
             withContext(Dispatchers.IO){
                 val result=repo.getMovieById(id)
                 if (result != null) {
-                    state=state.copy(
-                        title = result.title,
-                        overview = result.overview,
-                        poster_path= result.poster_path,
-                        popularity = result.popularity
-                    )
+                    _singleMovie.getAndUpdate { result }
                 }
             }
         }
-
     }
 
 }

@@ -28,8 +28,8 @@ class FavoritosViewModel @Inject constructor(private val repo: FavoritosReposito
             }
         }
     }
-    fun addCrono (favoritosModel: FavoritosModel)=viewModelScope.launch{repo.addFavorito(favoritosModel)}
-    fun updateCrono (favoritosModel: FavoritosModel)=viewModelScope.launch{repo.updateFavorito(favoritosModel)}
-    fun deleteCrono (favoritosModel: FavoritosModel)=viewModelScope.launch{repo.deleteFavorito(favoritosModel)}
+    fun addFavorito (favoritosModel: FavoritosModel)=viewModelScope.launch{repo.addFavorito(favoritosModel)}
+    fun updateFavorito (favoritosModel: FavoritosModel)=viewModelScope.launch{repo.updateFavorito(favoritosModel)}
+    fun deleteFavorito (favoritosModel: FavoritosModel)=viewModelScope.launch{repo.deleteFavorito(favoritosModel)}
 
 }

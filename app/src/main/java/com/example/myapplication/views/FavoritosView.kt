@@ -1,6 +1,5 @@
 package com.example.myapplication.views
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,30 +10,31 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.myapplication.components.ButtonWithTextField
-import com.example.myapplication.components.FilterChipExample
 import com.example.myapplication.components.MovieCard
 import com.example.myapplication.ui.theme.SecondaryColor
-import com.example.myapplication.viewModel.MoviesViewModel
+import com.example.myapplication.viewModel.FavoritosViewModel
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
+fun FavoritosView(viewModel: FavoritosViewModel, nav: NavController) {
     val configuration = LocalConfiguration.current //coge la configuracion del movil actual
     val size = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
     //en tamaño Dp se calcula del tamaño tanto alto como ancho del movil
@@ -45,52 +45,42 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
 
     val scrollStateGrid = rememberLazyGridState()
 
-    val isItemReachEndScrollGridCells by remember(scrollStateGrid) {
-        derivedStateOf {
-            val lastVisibleItem = scrollStateGrid.layoutInfo.visibleItemsInfo.lastOrNull()
-            val totalItems = scrollStateGrid.layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = lastVisibleItem?.index ?: 0
-            val reachedEnd = lastVisibleItemIndex >= totalItems - 1
-            reachedEnd
-        }
-    }
+    var searchText by remember { mutableStateOf("") }
+    val favoritos by viewModel.favoritosList.collectAsState()
 
-    LaunchedEffect(key1 = isItemReachEndScrollGridCells) {
-        if (isItemReachEndScrollGridCells) {
-            viewModel.fetchMoreMovies()
-        }
-    }
-
-    val movies by viewModel.movies.collectAsState()
-    // Contenedor para el TextField y el FilterChip
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = SecondaryColor)
-    ){
-        ButtonWithTextField(viewModel)
-        FilterChipExample()
-        LazyVerticalGrid(
+    ) {
+        TextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            label = { Text("Search movie") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(25.dp),
-            horizontalArrangement = Arrangement.spacedBy(25.dp),
-            state = scrollStateGrid,
-            columns = GridCells.Fixed(
-                if (mobileSize) 1 else 2
-            ),
-        ) {
-            items(movies) { item ->
-                MovieCard(item.title, item.poster_path, { nav.navigate("DetailView/${item.id}") },
-                    if (mobileSize) 130 else 230)
-
+                .align(Alignment.CenterHorizontally)
+        )
+            LazyVerticalGrid(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(25.dp),
+                horizontalArrangement = Arrangement.spacedBy(25.dp),
+                state = scrollStateGrid,
+                columns = GridCells.Fixed(
+                    if (mobileSize) 1 else 2
+                ),
+            ) { val filteredMovie = favoritos.filter {
+                it.title.contains(searchText, ignoreCase = true)
+            }
+                items(filteredMovie) { item ->
+                    MovieCard(item.title, item.poster_path, {
+                        nav.navigate("DetailView/${item.id}")
+                    }, if (mobileSize) 130 else 230)
+                }
             }
         }
+
     }
-}
-
-
-
-
