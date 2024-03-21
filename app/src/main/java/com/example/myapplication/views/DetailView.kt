@@ -1,7 +1,6 @@
 package com.example.myapplication.views
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import com.example.myapplication.components.likeButton
 import com.example.myapplication.components.painterForNulls
 import com.example.myapplication.components.profileCard
 import com.example.myapplication.model.FavoritosModel
-import com.example.myapplication.ui.theme.SecondaryColor
 import com.example.myapplication.ui.theme.White
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
@@ -75,82 +73,75 @@ fun ContentViewMobile(
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
     //box dentro de la columna
 
-    Box(
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(SecondaryColor)
+            .verticalScroll(rememberScrollState(movie.hashCode()))
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(25.dp)
     ) {
 
+        // Utiliza Column para organizar verticalmente el contenido de la vista
 
-        Column(
+        Header(
+            posterImage = movie?.poster_path,
+            backgroundImage = movie?.backdrop_path
+        )
+
+        Text(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState(movie.hashCode()))
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(25.dp)
+                .fillMaxWidth(),
+            fontSize = 20.sp,
+            text = movie?.title ?: "",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.ExtraBold,
+            color = White,
+        )
+
+
+        Text(
+            textAlign = TextAlign.Center,
+            text = movie?.overview ?: "",
+            color = White
+        )
+
+
+        Text(
+            modifier = Modifier
+                .fillMaxWidth(),
+            text = "Cast",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.ExtraBold,
+            color = White,
+        )
+
+
+
+        likeButton(
+            viewModelFavorito = viewModelFavoritos, favoritosList = favoritos, favoritosModel =
+            FavoritosModel(
+                id = id,
+                poster_path = movie?.poster_path ?: "",
+                title = movie?.title ?: "",
+                overview = movie?.overview ?: ""
+            )
+        )
+
+        val castList = movie?.credits?.cast
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            items(castList ?: emptyList()) { actor ->
 
-            // Utiliza Column para organizar verticalmente el contenido de la vista
-
-            Header(
-                posterImage = movie?.poster_path,
-                backgroundImage = movie?.backdrop_path
-            )
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                fontSize = 20.sp,
-                text = movie?.title ?: "",
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.ExtraBold,
-                color = White,
-            )
-
-
-            Text(
-                textAlign = TextAlign.Center,
-                text = movie?.overview ?: "",
-                color = White
-            )
-
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                text = "Cast",
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.ExtraBold,
-                color = White,
-            )
-
-
-
-            likeButton(
-                viewModelFavorito = viewModelFavoritos, favoritosList = favoritos, favoritosModel =
-                FavoritosModel(
-                    id = id,
-                    poster_path = movie?.poster_path ?: "",
-                    title = movie?.title ?: "",
-                    overview = movie?.overview ?: ""
-                )
-            )
-
-            val castList = movie?.credits?.cast
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(castList ?: emptyList()) { actor ->
-
-                    profileCard(actor.name, actor.character, actor.profile_path, 150)
-                }
+                profileCard(actor.name, actor.character, actor.profile_path, 150)
             }
-
         }
+
     }
+
 }
 
 @Composable
@@ -164,7 +155,7 @@ private fun Header(
         Image(
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f/9F),
+                .aspectRatio(16f / 9F),
             painter = painterForNulls(backgroundImage),
             contentScale = ContentScale.Crop,
             alignment = Alignment.TopCenter,

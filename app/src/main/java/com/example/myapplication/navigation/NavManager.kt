@@ -33,7 +33,6 @@ import com.example.myapplication.viewModel.MoviesViewModel
 import com.example.myapplication.views.DetailView
 import com.example.myapplication.views.FavoritosView
 import com.example.myapplication.views.HomeView
-import com.example.myapplication.views.SplashScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -103,13 +102,8 @@ fun NavManager(viewModelMovies:MoviesViewModel, viewModelFavoritos: FavoritosVie
         }
     ){
         padding ->
-        NavHost(navController = navController, startDestination = "Splash",modifier = Modifier
+        NavHost(navController = navController, startDestination = "Home",modifier = Modifier
             .padding(padding)){
-
-            composable("Splash"){
-
-                SplashScreen(nav = navController)
-            }
             
             composable("Home"){
 

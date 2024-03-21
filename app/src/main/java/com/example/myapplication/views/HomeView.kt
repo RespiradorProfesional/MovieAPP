@@ -1,16 +1,19 @@
 package com.example.myapplication.views
 
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -20,10 +23,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myapplication.components.ButtonWithTextField
 import com.example.myapplication.components.FilterChipExample
@@ -35,13 +48,15 @@ import com.example.myapplication.viewModel.MoviesViewModel
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
+
     val configuration = LocalConfiguration.current //coge la configuracion del movil actual
     val size = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
     //en tamaño Dp se calcula del tamaño tanto alto como ancho del movil
 
     val windowSizeClass1 = WindowSizeClass.calculateFromSize(size) //lo calcula
 
-    val mobileSize = windowSizeClass1.widthSizeClass == WindowWidthSizeClass.Compact //esto es un booleano
+    val mobileSize =
+        windowSizeClass1.widthSizeClass == WindowWidthSizeClass.Compact //esto es un booleano
 
     val scrollStateGrid = rememberLazyGridState()
 
@@ -61,33 +76,92 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
         }
     }
 
+    val items by viewModel.items.collectAsState()
+
     val movies by viewModel.movies.collectAsState()
+
+    Log.d("items actualizacion" , ""+items[1].selected)
+
     // Contenedor para el TextField y el FilterChip
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(color = SecondaryColor)
-    ){
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            fontSize = 50.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            text = buildAnnotatedString {
+                append("Movie\n")
+                withStyle(
+                    SpanStyle(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Cyan, Color.Magenta)
+                        )
+                    )
+                ) {
+                    append("App")
+                }
+            }
+        )
+
+
         ButtonWithTextField(viewModel)
-        FilterChipExample()
-        LazyVerticalGrid(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(25.dp),
-            horizontalArrangement = Arrangement.spacedBy(25.dp),
-            state = scrollStateGrid,
-            columns = GridCells.Fixed(
-                if (mobileSize) 1 else 2
-            ),
+
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.horizontalScroll(rememberScrollState())
         ) {
-            items(movies) { item ->
-                MovieCard(item.title, item.poster_path, { nav.navigate("DetailView/${item.id}") },
-                    if (mobileSize) 130 else 230)
+            for (item in items) {
+                Log.d("Filtro en for" , ""+item.selected)
+                if (item.selected){
+                    FilterChipExample(item.title,
+                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro, aqui recogen el selected 2 pasado por la funcion
+                            if (isSelected) {
+
+                                items.first { it.title.equals(title)}.selected = isSelected
+                            }
+                        })
+                }else{
+                    FilterChipExample(item.title,
+                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro
+                            if (!isSelected) {
+                                Log.d("Is selected", "Seleccionado")
+                                items.first { it.title .equals(title)  }.selected = isSelected
+                            }
+                        })
+                }
 
             }
         }
+
+        Text(
+            fontSize = 25.sp,
+            textAlign = TextAlign.Left,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            text = "Popular"
+        )
+
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(movies) { item ->
+                MovieCard(
+                    item.title, item.poster_path, { nav.navigate("DetailView/${item.id}") },
+                    if (mobileSize) 200 else 230
+                )
+
+            }
+        }
+
+
     }
 }
 

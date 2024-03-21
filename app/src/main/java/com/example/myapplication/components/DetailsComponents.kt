@@ -52,6 +52,7 @@ fun profileCard(nombre: String?, personajeNombre: String?, enlace: String?, imag
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
+
         )
     ) {
         Spacer15()

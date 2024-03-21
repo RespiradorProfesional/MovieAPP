@@ -10,3 +10,9 @@ data class BottomNavigationItem(
     val badgeCount: Int? = null
 )
 
+data class FilterItem(
+    val title: String,
+    var selected: Boolean
+
+)
+
