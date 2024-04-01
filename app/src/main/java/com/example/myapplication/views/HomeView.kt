@@ -1,7 +1,6 @@
 package com.example.myapplication.views
 
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -37,16 +39,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myapplication.components.ButtonWithTextField
-import com.example.myapplication.components.FilterChipExample
+import com.example.myapplication.components.DropdownList
 import com.example.myapplication.components.MovieCard
 import com.example.myapplication.ui.theme.SecondaryColor
+import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
+fun HomeView(viewModel: MoviesViewModel, nav: NavController, viewModelFavoritos: FavoritosViewModel) {
 
+    val itemList = mutableListOf<String>()
+
+    // Iterar desde 1890 hasta 2024
+    for (year in 1890..2024) {
+        // Agregar el año a la lista como una cadena
+        itemList.add(year.toString())
+    }
+
+    var selectedIndex by rememberSaveable { mutableStateOf(0) } //investigar como funciona los remember y eso
+
+    var selectedYear: String by remember { mutableStateOf("") }
+
+    val favoritos by viewModelFavoritos.favoritosList.collectAsState()
     val configuration = LocalConfiguration.current //coge la configuracion del movil actual
     val size = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
     //en tamaño Dp se calcula del tamaño tanto alto como ancho del movil
@@ -73,8 +89,6 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
             viewModel.fetchMoreMovies()
         }
     }
-
-    val items by viewModel.items.collectAsState()
 
     val movies by viewModel.movies.collectAsState()
 
@@ -105,53 +119,17 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
             }
         )
 
+        DropdownList(itemList = itemList, selectedIndex = selectedIndex,onItemClick = { index, item ->
+            selectedYear=item
+            selectedIndex=index
+        })
 
-        ButtonWithTextField(viewModel)
 
-/*
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.horizontalScroll(rememberScrollState())
-        ) {
-            for (item in items) {
-                Log.d("Filtro en for" , ""+item.selected)
-                if (item.selected){
-                    FilterChipExample(item.title,
-                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro, aqui recogen el selected 2 pasado por la funcion
-                            if (isSelected) {
-                                items.first { it.title.equals(title)}.selected = isSelected
-                            }
-                        })
-                }else{
-                    FilterChipExample(item.title,
-                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro
-                            if (!isSelected) {
-                                Log.d("Is selected", "Seleccionado")
-                                items.first { it.title .equals(title)  }.selected = isSelected
-                            }
-                        })
-                }
+        ButtonWithTextField(
+            onClick = {
+                viewModel.fetchMoviesByName(it, selectedYear) //el it se lo pasa el ButtonWithTextField a traves del onclick
+        })
 
-            }
-        }
-
- */
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Log.d("items " , items.toString())
-            items(items) { item ->
-                FilterChipExample(
-                    item.title,item.selected
-                ) { newSelected ->
-                    val updatedItems = items.map {
-                        if (it.title.equals( item.title)) it.copy(selected = newSelected) else it
-                    }
-                    viewModel.setItems(updatedItems)
-
-                }
-            }
-        }
 
         Text(
             fontSize = 25.sp,
@@ -167,9 +145,10 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
             state = scrollStateList
         ) {
             items(movies) { item ->
+                val inFavorites = favoritos.find { it.id==item.id}!=null
                 MovieCard(
                     item.title, item.poster_path, { nav.navigate("DetailView/${item.id}") },
-                    if (mobileSize) 200 else 230
+                    if (mobileSize) 200 else 230,item.id,inFavorites
                 )
 
             }

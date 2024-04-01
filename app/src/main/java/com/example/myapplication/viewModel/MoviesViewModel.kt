@@ -2,7 +2,6 @@ package com.example.myapplication.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.components.FilterItem
 import com.example.myapplication.model.MovieData
 import com.example.myapplication.model.SingleMovieModel
 import com.example.myapplication.repository.MoviesRepository
@@ -24,16 +23,6 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
 
     var actualPage=1;
 
-    var _items =  MutableStateFlow(
-        listOf(
-            FilterItem("Terror", false),
-            FilterItem("Accion", false),
-            FilterItem("Aventura", false)
-        )
-    )
-
-    val items=_items.asStateFlow()
-
 
 
     private val _singleMovie = MutableStateFlow<SingleMovieModel?>(null)
@@ -43,12 +32,6 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
     init {
         fetchMovies(1)
     }
-
-    fun setItems(newList: List<FilterItem>){
-        val sortedItems = newList.sortedByDescending { it.selected }
-        _items.value=sortedItems
-    }
-
 
     fun fetchMovies(page: Int){
         viewModelScope.launch{
@@ -71,11 +54,11 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
         }
     }
 
-    fun fetchMoviesByName(name : String){
+    fun fetchMoviesByName(name : String,year: String?){
         viewModelScope.launch{
             withContext(Dispatchers.IO){
                 println(name)
-                val result=repo.getMoviesByName(name)
+                val result=repo.getMoviesByName(name, year)
                 _movies.value=result ?: emptyList()
             }
         }

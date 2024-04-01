@@ -76,9 +76,10 @@ fun FavoritosView(viewModel: FavoritosViewModel, nav: NavController) {
                 it.title.contains(searchText, ignoreCase = true)
             }
                 items(filteredMovie) { item ->
+                    val inFavorites = favoritos.find { it.id==item.id}!=null
                     MovieCard(item.title, item.poster_path, {
                         nav.navigate("DetailView/${item.id}")
-                    }, if (mobileSize) 130 else 230)
+                    }, if (mobileSize) 200 else 230 , item.id,inFavorites)
                 }
             }
         }

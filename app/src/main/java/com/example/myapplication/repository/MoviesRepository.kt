@@ -9,6 +9,9 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
     suspend fun getMovies(page : Int): List<MovieData>? {
         val response=movieApi.getMovies(page)
+
+
+
         if (response.isSuccessful){
             return response.body()?.results
         }
@@ -24,8 +27,8 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
         return null
     }
 
-    suspend fun getMoviesByName(name :String): List<MovieData>? {
-        val response=movieApi.getMoviesByName(name)
+    suspend fun getMoviesByName(name :String,year:String?): List<MovieData>? {
+        val response=movieApi.getMoviesByName(name,year)
         if (response.isSuccessful){
             return response.body()?.results
         }

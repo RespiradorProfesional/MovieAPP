@@ -29,10 +29,8 @@ class MainActivity : ComponentActivity() {
 
 /**
  * Cosas a hacer:
- * -Bug al deslizar a la izquierda el panel se vuelve lila
- * -El textField se expande fleje si pones muchos caracteres
- * -Al buscar nada o no encontrar nada no se ve nada
- * -Los filtros aun no funcionan, y ni si quiera se actualizan 
+ * -quitar los filtros y poner algo que sirva
+ * -los favoritos se vean desde antes de entrar en el detail
  */
 
 /**

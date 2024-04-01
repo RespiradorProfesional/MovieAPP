@@ -1,33 +1,37 @@
 package com.example.myapplication.components
 
 
-import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material.IconButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,15 +48,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.myapplication.R
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.ui.theme.White
-import com.example.myapplication.viewModel.MoviesViewModel
 
 @Composable
-fun MovieCard(titulo: String?, enlace: String?, onClick: () -> Unit, imagenSize: Int){
+fun MovieCard(titulo: String?, enlace: String?, onClick: () -> Unit, imagenSize: Int, idMovie: Int?,isFavorite : Boolean){
+
+
+
     ElevatedCard (
         colors = CardDefaults.cardColors(
             containerColor = Color.Black
@@ -110,7 +118,7 @@ fun MovieCard(titulo: String?, enlace: String?, onClick: () -> Unit, imagenSize:
                     .align(Alignment.BottomCenter),
                 text = titulo ?: "",
                 fontWeight = FontWeight.ExtraBold,
-                color = White,
+                color = if (isFavorite)Color.Yellow else White,
                 textAlign = TextAlign.Center
             )
 
@@ -128,69 +136,11 @@ fun isMovieInFavoritos(favoritosList : List<FavoritosModel>, movieId: Int): Bool
     return favoritosList.any { it.id == movieId }
 }
 
-@Composable
-fun FilterChipExample(title: String, selected: Boolean, newSelected: (Boolean) -> Unit) {
 
-
-
-    FilterChip(
-        onClick = {
-            Log.d("Click en filtro $title", ""+selected)
-            newSelected(!selected)
-        },
-        label = {
-            Text(title)
-        },
-        selected = selected,
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Done icon",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        } else {
-            null
-        }
-
-    )
-
-}
-
-/*
-@Composable
-fun FilterChipExample(title: String, selected2: (Boolean, String) -> Unit) {
-    var selected by remember { mutableStateOf(false) }
-
-
-    FilterChip(
-        onClick = {
-            selected = !selected
-            Log.d("Click en filtro ", ""+selected)
-            selected2(selected, title)
-        },
-        label = {
-            Text(title)
-        },
-        selected = selected,
-        leadingIcon = if (selected) {
-            {
-                Icon(
-                    imageVector = Icons.Filled.Done,
-                    contentDescription = "Done icon",
-                    modifier = Modifier.size(FilterChipDefaults.IconSize)
-                )
-            }
-        } else {
-            null
-        }
-    )
-}
- */
 
 @Composable
-fun ButtonWithTextField(moviesViewModel: MoviesViewModel) {
+fun ButtonWithTextField(
+    onClick: (String) -> Unit) {
     var textValue by remember { mutableStateOf("") }
     var buttonClicked by remember { mutableStateOf(false) }
 
@@ -218,10 +168,12 @@ fun ButtonWithTextField(moviesViewModel: MoviesViewModel) {
         )
 
         IconButton(
-
             onClick = {
-                moviesViewModel.fetchMoviesByName(textValue)
-            },
+                onClick(textValue)
+            }
+
+                //moviesViewModel.fetchMoviesByName(textValue,"1990") //pasarle tu el onclick
+            ,
             content = {
                 Icon(
                     imageVector = Icons.Filled.Search,
@@ -251,3 +203,70 @@ fun painterForNulls(enlace: String?): Painter {
     }
 }
 
+@Composable
+fun DropdownList(itemList: List<String>, selectedIndex: Int, onItemClick: (Int,String) -> Unit) {
+
+    var showDropdown by rememberSaveable { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center) {
+
+        // button
+        Box(
+            modifier = Modifier
+                .background(Color.Black)
+                .clickable { showDropdown = true },
+//            .clickable { showDropdown = !showDropdown },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = itemList[selectedIndex], modifier = Modifier.padding(3.dp),color= White)
+        }
+
+        // dropdown list
+        Box() {
+            if (showDropdown) {
+                Popup(
+                    alignment = Alignment.TopCenter,
+                    properties = PopupProperties(
+                        excludeFromSystemGesture = true,
+                    ),
+                    // to dismiss on click outside
+                    onDismissRequest = { showDropdown = false }
+                ) {
+
+                    Column(
+                        modifier = Modifier
+                            .width(80.dp)
+                            .heightIn(max = 90.dp)
+                            .verticalScroll(state = scrollState)
+                            .border(width = 1.dp, color = Color.Gray),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+
+                        itemList.onEachIndexed { index, item ->
+                            if (index != 0) {
+                                Divider(thickness = 1.dp, color = Color.LightGray)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.Black)
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onItemClick(index,item)
+                                        showDropdown = !showDropdown
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = item, color = White)
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+}
