@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         val viewModelMovies : MoviesViewModel by viewModels()
         val viewModelFavoritos : FavoritosViewModel by viewModels()
         setContent {
-            MyApplicationTheme {
+            MyApplicationTheme(darkTheme = true) {
 
                 NavManager(viewModelMovies,viewModelFavoritos)
 

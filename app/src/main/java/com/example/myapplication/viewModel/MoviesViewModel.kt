@@ -44,6 +44,11 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
         fetchMovies(1)
     }
 
+    fun setItems(newList: List<FilterItem>){
+        val sortedItems = newList.sortedByDescending { it.selected }
+        _items.value=sortedItems
+    }
+
 
     fun fetchMovies(page: Int){
         viewModelScope.launch{

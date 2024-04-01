@@ -129,6 +129,37 @@ fun isMovieInFavoritos(favoritosList : List<FavoritosModel>, movieId: Int): Bool
 }
 
 @Composable
+fun FilterChipExample(title: String, selected: Boolean, newSelected: (Boolean) -> Unit) {
+
+
+
+    FilterChip(
+        onClick = {
+            Log.d("Click en filtro $title", ""+selected)
+            newSelected(!selected)
+        },
+        label = {
+            Text(title)
+        },
+        selected = selected,
+        leadingIcon = if (selected) {
+            {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "Done icon",
+                    modifier = Modifier.size(FilterChipDefaults.IconSize)
+                )
+            }
+        } else {
+            null
+        }
+
+    )
+
+}
+
+/*
+@Composable
 fun FilterChipExample(title: String, selected2: (Boolean, String) -> Unit) {
     var selected by remember { mutableStateOf(false) }
 
@@ -156,6 +187,7 @@ fun FilterChipExample(title: String, selected2: (Boolean, String) -> Unit) {
         }
     )
 }
+ */
 
 @Composable
 fun ButtonWithTextField(moviesViewModel: MoviesViewModel) {

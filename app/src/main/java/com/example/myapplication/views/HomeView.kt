@@ -3,14 +3,12 @@ package com.example.myapplication.views
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
@@ -45,7 +43,6 @@ import com.example.myapplication.ui.theme.SecondaryColor
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
-
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
@@ -59,20 +56,20 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
     val mobileSize =
         windowSizeClass1.widthSizeClass == WindowWidthSizeClass.Compact //esto es un booleano
 
-    val scrollStateGrid = rememberLazyGridState()
+    val scrollStateList = rememberLazyListState()
 
-    val isItemReachEndScrollGridCells by remember(scrollStateGrid) {
+    val isItemReachEndScrollStateList by remember(scrollStateList) {
         derivedStateOf {
-            val lastVisibleItem = scrollStateGrid.layoutInfo.visibleItemsInfo.lastOrNull()
-            val totalItems = scrollStateGrid.layoutInfo.totalItemsCount
+            val lastVisibleItem = scrollStateList.layoutInfo.visibleItemsInfo.lastOrNull()
+            val totalItems = scrollStateList.layoutInfo.totalItemsCount
             val lastVisibleItemIndex = lastVisibleItem?.index ?: 0
             val reachedEnd = lastVisibleItemIndex >= totalItems - 1
             reachedEnd
         }
     }
 
-    LaunchedEffect(key1 = isItemReachEndScrollGridCells) {
-        if (isItemReachEndScrollGridCells) {
+    LaunchedEffect(key1 = isItemReachEndScrollStateList) {
+        if (isItemReachEndScrollStateList) {
             viewModel.fetchMoreMovies()
         }
     }
@@ -80,8 +77,6 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
     val items by viewModel.items.collectAsState()
 
     val movies by viewModel.movies.collectAsState()
-
-    Log.d("items actualizacion" , ""+items[1].selected)
 
     // Contenedor para el TextField y el FilterChip
     Column(
@@ -113,7 +108,7 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
 
         ButtonWithTextField(viewModel)
 
-
+/*
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.horizontalScroll(rememberScrollState())
@@ -124,7 +119,6 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
                     FilterChipExample(item.title,
                         selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro, aqui recogen el selected 2 pasado por la funcion
                             if (isSelected) {
-
                                 items.first { it.title.equals(title)}.selected = isSelected
                             }
                         })
@@ -141,6 +135,24 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
             }
         }
 
+ */
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Log.d("items " , items.toString())
+            items(items) { item ->
+                FilterChipExample(
+                    item.title,item.selected
+                ) { newSelected ->
+                    val updatedItems = items.map {
+                        if (it.title.equals( item.title)) it.copy(selected = newSelected) else it
+                    }
+                    viewModel.setItems(updatedItems)
+
+                }
+            }
+        }
+
         Text(
             fontSize = 25.sp,
             textAlign = TextAlign.Left,
@@ -151,7 +163,8 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
 
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            state = scrollStateList
         ) {
             items(movies) { item ->
                 MovieCard(
