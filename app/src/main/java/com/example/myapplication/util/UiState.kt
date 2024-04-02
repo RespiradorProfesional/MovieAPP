@@ -1,8 +1,6 @@
 package com.example.myapplication.util
 
-import androidx.compose.runtime.Composable
-import com.example.myapplication.views.SplashScreen
-
+/*
 sealed class UIState {
     data object Loading : UIState()
     data class Success(val data: String) : UIState()
@@ -19,3 +17,6 @@ fun updateUI(state: UIState) {
     }
 }
 
+
+
+ */
