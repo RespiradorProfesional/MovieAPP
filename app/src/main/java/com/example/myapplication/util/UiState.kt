@@ -13,7 +13,6 @@ fun updateUI(state: UIState) {
     when (state) {
         is UIState.Loading -> SplashScreen()
         is UIState.Success -> showData(state.data)
-        is UIState.Error -> showError(state.exception)
     }
 }
 
