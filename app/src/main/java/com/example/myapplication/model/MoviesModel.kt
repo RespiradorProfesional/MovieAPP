@@ -6,8 +6,8 @@ data class MoviesModel(
 )
 
 data class MovieData(
-    val id : Int?= null,
-    val title : String?= null,
-    val overview : String?= null,
+    val id: Int,
+    val title: String?= null,
+    val overview: String?= null,
     val poster_path: String? = null
 )

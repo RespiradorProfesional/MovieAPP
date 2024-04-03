@@ -31,6 +31,8 @@ class MainActivity : ComponentActivity() {
  * Cosas a hacer:
  * -quitar los filtros y poner algo que sirva
  * -los favoritos se vean desde antes de entrar en el detail
+ * - Mirar los eventos y como administrarlos
+ * - Realizar el UiState en demas pantallas
  */
 
 /**
