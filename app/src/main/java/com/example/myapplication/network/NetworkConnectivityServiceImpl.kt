@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -23,14 +24,17 @@ class NetworkConnectivityServiceImpl @Inject constructor (
     override val networkStatus: Flow<NetworkStatus> = callbackFlow {
         val connectivityCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
+                Log.d("Conexion " , "si")
                 trySend(NetworkStatus.Connected)
             }
 
             override fun onUnavailable() {
+                Log.d("Conexion " , "no")
                 trySend(NetworkStatus.Disconnected)
             }
 
             override fun onLost(network: Network) {
+                Log.d("Conexion " , "no")
                 trySend(NetworkStatus.Disconnected)
             }
 

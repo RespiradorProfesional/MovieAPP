@@ -10,19 +10,21 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.network.NetworkStatus
 import com.example.myapplication.viewModel.MoviesViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NetworkConnectivityScreen(
     viewModel: MoviesViewModel ,
     snackbarHostState: SnackbarHostState = SnackbarHostState()
 ) {
+
     val networkStatus = viewModel.networkStatus.collectAsStateWithLifecycle()
+
     if (networkStatus.value == NetworkStatus.Disconnected) {
         LaunchedEffect(networkStatus) {
             snackbarHostState.showSnackbar("you are offline")

@@ -15,6 +15,7 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -37,6 +38,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.myapplication.components.ButtonWithTextField
+import com.example.myapplication.components.DropdownList
 import com.example.myapplication.components.MovieCard
 import com.example.myapplication.components.showError
 import com.example.myapplication.components.showLoading
@@ -48,23 +51,50 @@ import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+
 @Composable
-fun HomeView(viewModel: MoviesViewModel, nav: NavController, viewModelFavoritos: FavoritosViewModel) {
+fun HomeView(
+    viewModel: MoviesViewModel,
+    nav: NavController,
+    viewModelFavoritos: FavoritosViewModel
+) {
 
-    val itemList = mutableListOf<String>()
-
-    // Iterar desde 1890 hasta 2024
-    for (year in 1890..2024) {
-        // Agregar el año a la lista como una cadena
-        itemList.add(year.toString())
-    }
-
-    var selectedIndex by rememberSaveable { mutableStateOf(0) } //investigar como funciona los remember y eso
-
-    var selectedYear: String by remember { mutableStateOf("") }
 
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
+
+
+    val movies by viewModel.movies.collectAsState()
+
+    Log.d("Se actualiza ", " si ")
+
+    //cuando da error pasa por aqui
+
+    when (movies) {
+        is UiStateHomeView.Loading -> showLoading()
+        is UiStateHomeView.Success -> showContentHomeView(
+            (movies as UiStateHomeView.Success).movieData,
+            favoritos,
+            nav,
+            viewModel
+        ) //lo de mostrar pelis
+        //show card muestra TODA la pantalla
+        is UiStateHomeView.Error -> showError((movies as UiStateHomeView.Error).message)
+        //no recoge el error de internet, de hecho no pasa ni por repositorios ni viewmodel
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+fun showContentHomeView(
+    movies: List<MovieData>,
+    favoritos: List<FavoritosModel>,
+    nav: NavController,
+    viewModel: MoviesViewModel
+) {
+
+    //Configuracion del movil
+
     val configuration = LocalConfiguration.current //coge la configuracion del movil actual
     val size = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
     //en tamaño Dp se calcula del tamaño tanto alto como ancho del movil
@@ -73,6 +103,20 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController, viewModelFavoritos:
 
     val mobileSize =
         windowSizeClass1.widthSizeClass == WindowWidthSizeClass.Compact //esto es un booleano
+
+    //items de filtros de años
+
+    val itemList = mutableListOf<String>()
+
+    for (year in 1890..2024) {
+        itemList.add(year.toString())
+    }
+
+    var selectedIndex by rememberSaveable { mutableStateOf(0) } //investigar como funciona los remember y eso
+
+    var selectedYear: String by remember { mutableStateOf("") }
+
+    //Scroll de las peliculas
 
     val scrollStateList = rememberLazyListState()
 
@@ -85,36 +129,14 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController, viewModelFavoritos:
             reachedEnd
         }
     }
-/*
+
     LaunchedEffect(key1 = isItemReachEndScrollStateList) {
         if (isItemReachEndScrollStateList) {
             viewModel.fetchMoreMovies()
         }
     }
 
-
- */
-    val movies by viewModel.movies.collectAsState()
-
-    Log.d("Se actualiza ", " si ")
-
-    //cuando da error pasa por aqui
-
-    when (movies){
-        is UiStateHomeView.Loading-> showLoading()
-        is UiStateHomeView.Success-> showContentHomeView((movies as UiStateHomeView.Success).movieData,favoritos,nav) //lo de mostrar pelis
-        //show card muestra TODA la pantalla
-        is UiStateHomeView.Error-> showError((movies as UiStateHomeView.Error).message)
-        //no recoge el error de internet, de hecho no pasa ni por repositorios ni viewmodel
-    }
-}
-
-
-@Composable
-fun showContentHomeView(movies: List<MovieData>,favoritos :List<FavoritosModel>,nav: NavController) {
-
-
-    Log.d("Se actualiza 2 ", " si ")
+    //contenido
 
     Column(
         modifier = Modifier
@@ -141,18 +163,27 @@ fun showContentHomeView(movies: List<MovieData>,favoritos :List<FavoritosModel>,
                 }
             }
         )
-        /*
-               DropdownList(itemList = itemList, selectedIndex = selectedIndex,onItemClick = { index, item ->
-                   selectedYear=item
-                   selectedIndex=index
-               })
+
+        DropdownList(
+            itemList = itemList,
+            selectedIndex = selectedIndex,
+            onItemClick = { index, item ->
+                selectedYear = item
+                selectedIndex = index
+            })
 
 
-                       ButtonWithTextField(
-                           onClick = {
-                               viewModel.fetchMoviesByName(it, selectedYear) //el it se lo pasa el ButtonWithTextField a traves del onclick
-                       })
-                */
+        ButtonWithTextField(
+            onClick = {
+                viewModel.fetchMoviesByName(
+                    it,
+                    selectedYear
+                ) //el it se lo pasa el ButtonWithTextField a traves del onclick
+
+            })
+
+
+
 
         Text(
             fontSize = 25.sp,
@@ -166,25 +197,24 @@ fun showContentHomeView(movies: List<MovieData>,favoritos :List<FavoritosModel>,
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-           // state = scrollStateList
+            state = scrollStateList
         ) {
             items(movies.size) { item ->
 
-                val inFavorites = favoritos.find { it.id==movies.get(item).id}!=null
+                val inFavorites = favoritos.find { it.id == movies.get(item).id } != null
                 MovieCard(
-                    movies.get(item).title, movies.get(item).poster_path, { nav.navigate("DetailView/${movies.get(item).id}") },
-                    //if (mobileSize) 200 else 230,item.id,inFavorites
-                    200,movies.get(item).id,inFavorites
+                    movies.get(item).title,
+                    movies.get(item).poster_path,
+                    { nav.navigate("DetailView/${movies.get(item).id}") },
+                    if (mobileSize) 200 else 230,
+                    movies.get(item).id,
+                    inFavorites
                 )
 
 
             }
         }
     }
-
-
-
-
 
 
 }

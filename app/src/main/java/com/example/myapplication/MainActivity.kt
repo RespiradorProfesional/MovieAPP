@@ -29,8 +29,10 @@ class MainActivity : ComponentActivity() {
 
 /**
  * Cosas a hacer:
- * -quitar los filtros y poner algo que sirva
- * -los favoritos se vean desde antes de entrar en el detail
+ * - Mirar logs de las llamadas api
+ * - Comprobar si hay conexion a internet
+ * - Catchear en todos las consultas a la api si no hay internet
+ * - el repositorio debe devolver directamente el uiState respondiente
  * - Mirar los eventos y como administrarlos
  * - Realizar el UiState en demas pantallas
  */

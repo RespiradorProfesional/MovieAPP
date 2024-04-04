@@ -1,7 +1,43 @@
 package com.example.myapplication.views
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.myapplication.components.likeButton
+import com.example.myapplication.components.painterForNulls
+import com.example.myapplication.components.profileCard
+import com.example.myapplication.components.showError
+import com.example.myapplication.components.showLoading
+import com.example.myapplication.model.FavoritosModel
+import com.example.myapplication.model.SingleMovieModel
+import com.example.myapplication.ui.theme.White
+import com.example.myapplication.util.UiStateDetailView
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -9,9 +45,35 @@ import com.example.myapplication.viewModel.MoviesViewModel
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosViewModel, id: Int) {
-/*
+
     viewModelMovies.getMovieById(id)
-    val configuration = LocalConfiguration.current //coge la configuracion del movil actual
+
+    val movie by viewModelMovies.singleMovie.collectAsState()
+
+    when (movie) {
+        is UiStateDetailView.Loading -> showLoading()
+        is UiStateDetailView.Success -> showContentDetailView(
+            (movie as UiStateDetailView.Success).singleMovieModel,
+            viewModelFavoritos,
+            id
+        )
+
+        is UiStateDetailView.Error -> showError((movie as UiStateDetailView.Error).message)
+    }
+
+
+}
+
+
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@Composable
+fun showContentDetailView(
+    movie: SingleMovieModel,
+    viewModelFavoritos: FavoritosViewModel,
+    id: Int
+) {
+
+  val configuration = LocalConfiguration.current //coge la configuracion del movil actual
     val size = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
     //en tamaño Dp se calcula del tamaño tanto alto como ancho del movil
 
@@ -20,26 +82,7 @@ fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosVi
     val mobileSize =
         windowSizeClass1.widthSizeClass == WindowWidthSizeClass.Compact //esto es un booleano
 
-    if (mobileSize) ContentViewMobile(
-        viewModelMovies,
-        viewModelFavoritos,
-        id
-    ) else ContentViewMobile(viewModelMovies, viewModelFavoritos, id)
 
-
-
- */
-}
-
-/*
-@Composable
-fun ContentViewMobile(
-    viewModelMovies: MoviesViewModel,
-    viewModelFavoritos: FavoritosViewModel,
-    id: Int
-) {
-
-    val movie by viewModelMovies.singleMovie.collectAsState()
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
     //box dentro de la columna
 
@@ -141,5 +184,5 @@ private fun Header(
             contentDescription = null
         )
     }
-}*/
+}
 
