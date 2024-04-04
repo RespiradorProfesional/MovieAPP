@@ -16,11 +16,11 @@ import javax.inject.Inject
 
 class NetworkConnectivityServiceImpl @Inject constructor (
     context: Context
-)  {
+): NetworkConnectivityService  {
 
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-    var networkStatus: Flow<NetworkStatus> = callbackFlow {
+    override val networkStatus: Flow<NetworkStatus> = callbackFlow {
         val connectivityCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 trySend(NetworkStatus.Connected)
@@ -50,7 +50,5 @@ class NetworkConnectivityServiceImpl @Inject constructor (
     }
         .distinctUntilChanged()
         .flowOn(Dispatchers.IO)
-
-
 
 }

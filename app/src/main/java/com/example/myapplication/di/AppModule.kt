@@ -1,8 +1,11 @@
 package com.example.myapplication.di
 
+import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.example.myapplication.data.MovieApi
+import com.example.myapplication.network.NetworkConnectivityService
+import com.example.myapplication.network.NetworkConnectivityServiceImpl
 import com.example.myapplication.room.FavoritosDataBase
 import com.example.myapplication.room.FavoritosDataBaseDao
 import com.example.myapplication.util.Constants.Companion.BASE_URL
@@ -61,5 +64,21 @@ object AppModule {
         ).fallbackToDestructiveMigration()
             .build()
     }
+
+
+
+
+    @Singleton
+    @Provides
+    fun provideNetworkConnectivityService(context: Context): NetworkConnectivityService {
+        return NetworkConnectivityServiceImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideApplicationContext(application: Application): Context {
+        return application.applicationContext
+    }
+
 
 }

@@ -4,12 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.SingleMovieModel
+import com.example.myapplication.network.NetworkConnectivityService
+import com.example.myapplication.network.NetworkStatus
 import com.example.myapplication.repository.MoviesRepository
 import com.example.myapplication.util.UiStateHomeView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.WhileSubscribed
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -17,8 +22,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MoviesViewModel @Inject constructor(
-    private val repo: MoviesRepository
+    private val repo: MoviesRepository,
+    networkConnectivityService: NetworkConnectivityService,
 ): ViewModel(){
+
+    val networkStatus: StateFlow<NetworkStatus> = networkConnectivityService.networkStatus.stateIn(
+        initialValue = NetworkStatus.Unknown,
+        scope = viewModelScope,
+        started = WhileSubscribed(5000)
+    )
 
     private val _movies= MutableStateFlow <UiStateHomeView>(UiStateHomeView.Loading)
 
@@ -29,6 +41,7 @@ class MoviesViewModel @Inject constructor(
 
     private val _singleMovie = MutableStateFlow<SingleMovieModel?>(null)
     val singleMovie = _singleMovie.asStateFlow()
+
 
 
     init {
@@ -51,42 +64,47 @@ class MoviesViewModel @Inject constructor(
             }
         }
     }
-/*
-    fun fetchMoreMovies(){
-        viewModelScope.launch{
-            withContext(Dispatchers.IO){
-                actualPage+=1
-                val result=repo.getMovies(actualPage)
-                _movies.value= _movies.value.plus(result ?: emptyList())
+    /*
+        fun fetchMoreMovies(){
+            viewModelScope.launch{
+                withContext(Dispatchers.IO){
+                    actualPage+=1
+                    val result=repo.getMovies(actualPage)
+                    _movies.value= _movies.value.plus(result ?: emptyList())
 
-            }
-        }
-    }
-
-    fun fetchMoviesByName(name : String,year: String?){ //aqui movies tiene que valer loading
-        viewModelScope.launch{
-            withContext(Dispatchers.IO){
-                println(name)
-                val result=repo.getMoviesByName(name, year)
-                _movies.value=result ?: emptyList()
-            }
-        }
-    }
-
-    fun getMovieById(id: Int){
-        viewModelScope.launch{
-            withContext(Dispatchers.IO){
-                val result=repo.getMovieById(id)
-                if (result != null) {
-                    _singleMovie.getAndUpdate { result }
                 }
             }
         }
-    }
 
- */
+        fun fetchMoviesByName(name : String,year: String?){ //aqui movies tiene que valer loading
+            viewModelScope.launch{
+                withContext(Dispatchers.IO){
+                    println(name)
+                    val result=repo.getMoviesByName(name, year)
+                    _movies.value=result ?: emptyList()
+                }
+            }
+        }
+
+        fun getMovieById(id: Int){
+            viewModelScope.launch{
+                withContext(Dispatchers.IO){
+                    val result=repo.getMovieById(id)
+                    if (result != null) {
+                        _singleMovie.getAndUpdate { result }
+                    }
+                }
+            }
+        }
+
+     */
 
 }
+
+
+
+
+
 
 
 
