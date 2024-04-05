@@ -38,6 +38,10 @@ class MainActivity : ComponentActivity() {
  */
 
 /**
+ * el uiState deberia tener toda la pantalla tmb y tmb el el de la llamada api, buscar sobre UiStates
+ */
+
+/**
  *
  * las string no se ponen a palo seco en los texts
  * la guardas en los recursos

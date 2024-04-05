@@ -1,4 +1,4 @@
-package com.example.myapplication.network
+package com.example.myapplication.util
 
 sealed class NetworkStatus {
     object Unknown: NetworkStatus()

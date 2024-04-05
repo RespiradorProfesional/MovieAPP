@@ -27,10 +27,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.components.BottomNavigationItem
-import com.example.myapplication.components.showError
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 import com.example.myapplication.views.DetailView
+import com.example.myapplication.views.ErrorInternetView
 import com.example.myapplication.views.FavoritosView
 import com.example.myapplication.views.HomeView
 
@@ -39,6 +39,7 @@ import com.example.myapplication.views.HomeView
 @Composable
 fun NavManager(viewModelMovies:MoviesViewModel, viewModelFavoritos: FavoritosViewModel){
     val navController = rememberNavController()
+
 
     val items = listOf(
         BottomNavigationItem(
@@ -126,14 +127,14 @@ fun NavManager(viewModelMovies:MoviesViewModel, viewModelFavoritos: FavoritosVie
                 DetailView(viewModelMovies,  viewModelFavoritos, id,navController)
             }
 
-            composable("Error/{message}", arguments = listOf(
-                navArgument("message"){
+            composable(route="ErrorInternet/{route}", listOf(
+                navArgument("route"){
                     type= NavType.StringType
                 }
+            )) {
+                val route=it.arguments?.getString("route")?:""
+                ErrorInternetView(navController,viewModelMovies,route)
 
-            )){
-                val message = it.arguments?.getString("message")?:""
-                showError(message,navController,viewModelMovies)
             }
         }}
 

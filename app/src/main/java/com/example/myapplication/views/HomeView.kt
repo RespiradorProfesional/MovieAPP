@@ -45,7 +45,7 @@ import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.model.MovieData
 import com.example.myapplication.ui.theme.SecondaryColor
-import com.example.myapplication.util.UiStateHomeView
+import com.example.myapplication.util.UiStateApiSingleMovie
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -57,26 +57,32 @@ fun HomeView(
     viewModelFavoritos: FavoritosViewModel
 ) {
 
-    viewModel.fetchMovies(1)
+
+    //pasa por aqui cada vez que se actualiza movies
+
+
+
+    viewModel.fetchData()
+
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
-
-
     val movies by viewModel.movies.collectAsState()
+
+
+    //pasa por aqui cada vez que se actualiza movies
 
 
     Log.d("Conexion peliculas " , movies.toString())
 
-    //cuando da error pasa por aqui
 
     when (movies) {
-        is UiStateHomeView.Loading -> showLoading()
-        is UiStateHomeView.Success -> showContentHomeView(
-            (movies as UiStateHomeView.Success).movieData,
+        is UiStateApiSingleMovie.Loading -> showLoading()
+        is UiStateApiSingleMovie.Success -> showContentHomeView(
+            (movies as UiStateApiSingleMovie.Success).movieData,
             favoritos,
             nav,
             viewModel
         )
-        is UiStateHomeView.Error ->nav.navigate("Error/${(movies as UiStateHomeView.Error).message}")
+        is UiStateApiSingleMovie.Error ->nav.navigate("ErrorInternet/Home")
     }
 }
 
@@ -90,6 +96,7 @@ fun showContentHomeView(
     viewModel: MoviesViewModel
 ) {
 
+    viewModel.firtsFetch=false
     //Configuracion del movil
 
     val configuration = LocalConfiguration.current //coge la configuracion del movil actual

@@ -3,10 +3,10 @@ package com.example.myapplication.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.network.NetworkConnectivityService
-import com.example.myapplication.network.NetworkStatus
+import com.example.myapplication.util.NetworkStatus
 import com.example.myapplication.repository.MoviesRepository
-import com.example.myapplication.util.UiStateDetailView
-import com.example.myapplication.util.UiStateHomeView
+import com.example.myapplication.util.UiStateApiMovies
+import com.example.myapplication.util.UiStateApiSingleMovie
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,16 +30,27 @@ class MoviesViewModel @Inject constructor(
         started = WhileSubscribed(5000)
     )
 
-    private val _movies = MutableStateFlow<UiStateHomeView>(UiStateHomeView.Loading)
+    private val _movies = MutableStateFlow<UiStateApiSingleMovie>(UiStateApiSingleMovie.Loading)
 
     // Exponer la lista de peliculas como un StateFlow para observar cambios
     val movies = _movies.asStateFlow()
 
     var actualPage = 1
+    var firtsFetch = true
 
-    private val _singleMovie = MutableStateFlow<UiStateDetailView>(UiStateDetailView.Loading)
+    private val _singleMovie = MutableStateFlow<UiStateApiMovies>(UiStateApiMovies.Loading)
     val singleMovie = _singleMovie.asStateFlow()
 
+    //no se actualiza el contenido si intento hacer fetch en el homeView cada vez que se inicia
+    //si hago eso funciona el recargar, pero al segundo intento ya que el loading es solo cuando inicia la app
+
+
+    fun fetchData() {
+        if (firtsFetch){
+            _movies.value = UiStateApiSingleMovie.Loading
+            fetchMovies(1)
+        }
+    }
 
     fun fetchMovies(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -55,8 +66,8 @@ class MoviesViewModel @Inject constructor(
             actualPage += 1
             val result = repo.getMovies(actualPage)
             val list =
-                (_movies.value as UiStateHomeView.Success).movieData.plus((result as UiStateHomeView.Success).movieData)
-            _movies.value = UiStateHomeView.Success(list)
+                (_movies.value as UiStateApiSingleMovie.Success).movieData.plus((result as UiStateApiSingleMovie.Success).movieData)
+            _movies.value = UiStateApiSingleMovie.Success(list)
         }
     }
 
@@ -75,7 +86,7 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             val result = repo.getMovieById(id)
-            _singleMovie.value=result
+            _singleMovie.value = result
 
         }
     }

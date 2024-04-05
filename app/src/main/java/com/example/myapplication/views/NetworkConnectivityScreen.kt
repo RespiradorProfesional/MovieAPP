@@ -13,7 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.myapplication.network.NetworkStatus
+import com.example.myapplication.util.NetworkStatus
 import com.example.myapplication.viewModel.MoviesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

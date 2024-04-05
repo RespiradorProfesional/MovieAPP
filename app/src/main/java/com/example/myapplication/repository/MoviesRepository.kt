@@ -2,63 +2,68 @@ package com.example.myapplication.repository
 
 import android.util.Log
 import com.example.myapplication.data.MovieApi
-import com.example.myapplication.util.UiStateDetailView
-import com.example.myapplication.util.UiStateHomeView
+import com.example.myapplication.util.UiStateApiMovies
+import com.example.myapplication.util.UiStateApiSingleMovie
 import javax.inject.Inject
 
 class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
     //que tambien devuelva el sealed class
+    //var uiState
 
-
-    suspend fun getMovies(page : Int):  UiStateHomeView{
+    suspend fun getMovies(page : Int):  UiStateApiSingleMovie{
             //Pasa por aqui pero debajo del response no
 
+//        if (uiState is UiStateHomeView.Error){
+//            return UiStateHomeView.Loading
+//        }
         try {
             val responseApi=movieApi.getMovies(page)
             Log.d("Conexion Error " , "no")
             return if (responseApi.isSuccessful){
                 val response= responseApi.body()!!.results
-                UiStateHomeView.Success(response)
+                UiStateApiSingleMovie.Success(response)
             }  else {
-                UiStateHomeView.Error("Error fetching data: ${responseApi.message()}")
+//                uiState=UiStateHomeView.Error("Exception fetching data: ${responseApi.message()}")
+                UiStateApiSingleMovie.Error("Error fetching data: ${responseApi.message()}")
             }
     } catch (e: Exception) {
         Log.d("Conexion Error " , "si")
-        return UiStateHomeView.Error("Exception fetching data: ${e.message}")
+//        uiState=UiStateHomeView.Error("Exception fetching data: ${e.message}")
+        return UiStateApiSingleMovie.Error("Exception fetching data: ${e.message}")
     }
 
     }
 
-    suspend fun getMoviesByName(name :String,year:String?): UiStateHomeView{
+    suspend fun getMoviesByName(name :String,year:String?): UiStateApiSingleMovie{
         try {
             val responseApi=movieApi.getMoviesByName(name,year)
 
             return if (responseApi.isSuccessful){
                 val response= responseApi.body()!!.results
-                UiStateHomeView.Success(response)
+                UiStateApiSingleMovie.Success(response)
             }  else {
-                UiStateHomeView.Error("Error fetching data: ${responseApi.message()}")
+                UiStateApiSingleMovie.Error("Error fetching data: ${responseApi.message()}")
             }
         } catch (e: Exception) {
-            return UiStateHomeView.Error("Exception fetching data: ${e.message}")
+            return UiStateApiSingleMovie.Error("Exception fetching data: ${e.message}")
         }
 
     }
 
-    suspend fun getMovieById(id:Int): UiStateDetailView{
+    suspend fun getMovieById(id:Int): UiStateApiMovies{
 
         try {
             val responseApi=movieApi.getMovieById(id)
 
             return if (responseApi.isSuccessful){
                 val response= responseApi.body()!!
-                UiStateDetailView.Success(response)
+                UiStateApiMovies.Success(response)
             }  else {
-                UiStateDetailView.Error("Error fetching data: ${responseApi.message()}")
+                UiStateApiMovies.Error("Error fetching data: ${responseApi.message()}")
             }
         }catch (e: Exception) {
-            return UiStateDetailView.Error("Exception fetching data: ${e.message}")
+            return UiStateApiMovies.Error("Exception fetching data: ${e.message}")
         }
     }
 

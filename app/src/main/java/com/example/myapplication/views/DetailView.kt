@@ -33,12 +33,11 @@ import androidx.navigation.NavController
 import com.example.myapplication.components.likeButton
 import com.example.myapplication.components.painterForNulls
 import com.example.myapplication.components.profileCard
-import com.example.myapplication.components.showError
 import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.model.SingleMovieModel
 import com.example.myapplication.ui.theme.White
-import com.example.myapplication.util.UiStateDetailView
+import com.example.myapplication.util.UiStateApiMovies
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -52,17 +51,14 @@ fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosVi
     val movie by viewModelMovies.singleMovie.collectAsState()
 
     when (movie) {
-        is UiStateDetailView.Loading -> showLoading()
-        is UiStateDetailView.Success -> showContentDetailView(
-            (movie as UiStateDetailView.Success).singleMovieModel,
+        is UiStateApiMovies.Loading -> showLoading()
+        is UiStateApiMovies.Success -> showContentDetailView(
+            (movie as UiStateApiMovies.Success).singleMovieModel,
             viewModelFavoritos,
             id
         )
-
-        is UiStateDetailView.Error -> showError((movie as UiStateDetailView.Error).message,nav,viewModelMovies)
+        is UiStateApiMovies.Error -> nav.navigate("ErrorInternet/DetailView$id")
     }
-
-
 }
 
 
