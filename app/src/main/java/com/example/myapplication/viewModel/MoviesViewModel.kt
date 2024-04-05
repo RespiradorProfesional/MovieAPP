@@ -30,7 +30,6 @@ class MoviesViewModel @Inject constructor(
         started = WhileSubscribed(5000)
     )
 
-
     private val _movies = MutableStateFlow<UiStateHomeView>(UiStateHomeView.Loading)
 
     // Exponer la lista de peliculas como un StateFlow para observar cambios
@@ -41,11 +40,6 @@ class MoviesViewModel @Inject constructor(
     private val _singleMovie = MutableStateFlow<UiStateDetailView>(UiStateDetailView.Loading)
     val singleMovie = _singleMovie.asStateFlow()
 
-
-    init {
-
-        fetchMovies(1)
-    }
 
     fun fetchMovies(page: Int) {
         viewModelScope.launch(Dispatchers.IO) {

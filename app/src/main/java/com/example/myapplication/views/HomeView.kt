@@ -41,7 +41,6 @@ import androidx.navigation.NavController
 import com.example.myapplication.components.ButtonWithTextField
 import com.example.myapplication.components.DropdownList
 import com.example.myapplication.components.MovieCard
-import com.example.myapplication.components.showError
 import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.model.MovieData
@@ -51,7 +50,6 @@ import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
-
 @Composable
 fun HomeView(
     viewModel: MoviesViewModel,
@@ -59,13 +57,14 @@ fun HomeView(
     viewModelFavoritos: FavoritosViewModel
 ) {
 
-
+    viewModel.fetchMovies(1)
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
 
 
     val movies by viewModel.movies.collectAsState()
 
-    Log.d("Se actualiza ", " si ")
+
+    Log.d("Conexion peliculas " , movies.toString())
 
     //cuando da error pasa por aqui
 
@@ -76,10 +75,8 @@ fun HomeView(
             favoritos,
             nav,
             viewModel
-        ) //lo de mostrar pelis
-        //show card muestra TODA la pantalla
-        is UiStateHomeView.Error -> showError((movies as UiStateHomeView.Error).message)
-        //no recoge el error de internet, de hecho no pasa ni por repositorios ni viewmodel
+        )
+        is UiStateHomeView.Error ->nav.navigate("Error/${(movies as UiStateHomeView.Error).message}")
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.myapplication.repository
 
+import android.util.Log
 import com.example.myapplication.data.MovieApi
 import com.example.myapplication.util.UiStateDetailView
 import com.example.myapplication.util.UiStateHomeView
@@ -15,7 +16,7 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
         try {
             val responseApi=movieApi.getMovies(page)
-
+            Log.d("Conexion Error " , "no")
             return if (responseApi.isSuccessful){
                 val response= responseApi.body()!!.results
                 UiStateHomeView.Success(response)
@@ -23,6 +24,7 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
                 UiStateHomeView.Error("Error fetching data: ${responseApi.message()}")
             }
     } catch (e: Exception) {
+        Log.d("Conexion Error " , "si")
         return UiStateHomeView.Error("Exception fetching data: ${e.message}")
     }
 

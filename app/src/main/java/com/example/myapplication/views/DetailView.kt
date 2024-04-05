@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.myapplication.components.likeButton
 import com.example.myapplication.components.painterForNulls
 import com.example.myapplication.components.profileCard
@@ -44,7 +45,7 @@ import com.example.myapplication.viewModel.MoviesViewModel
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosViewModel, id: Int) {
+fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosViewModel, id: Int,nav:NavController) {
 
     viewModelMovies.getMovieById(id)
 
@@ -58,7 +59,7 @@ fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosVi
             id
         )
 
-        is UiStateDetailView.Error -> showError((movie as UiStateDetailView.Error).message)
+        is UiStateDetailView.Error -> showError((movie as UiStateDetailView.Error).message,nav,viewModelMovies)
     }
 
 

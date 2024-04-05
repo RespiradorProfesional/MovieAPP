@@ -1,7 +1,6 @@
 package com.example.myapplication.navigation
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -28,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.components.BottomNavigationItem
+import com.example.myapplication.components.showError
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 import com.example.myapplication.views.DetailView
@@ -104,6 +104,8 @@ fun NavManager(viewModelMovies:MoviesViewModel, viewModelFavoritos: FavoritosVie
         padding ->
         NavHost(navController = navController, startDestination = "Home",modifier = Modifier
             .padding(padding)){
+
+
             
             composable("Home"){
 
@@ -120,9 +122,18 @@ fun NavManager(viewModelMovies:MoviesViewModel, viewModelFavoritos: FavoritosVie
                 }
             )){
                 val id = it.arguments?.getInt("id")?:0
-                Log.d("ID", "$id")
 
-                DetailView(viewModelMovies,  viewModelFavoritos, id)
+                DetailView(viewModelMovies,  viewModelFavoritos, id,navController)
+            }
+
+            composable("Error/{message}", arguments = listOf(
+                navArgument("message"){
+                    type= NavType.StringType
+                }
+
+            )){
+                val message = it.arguments?.getString("message")?:""
+                showError(message,navController,viewModelMovies)
             }
         }}
 
