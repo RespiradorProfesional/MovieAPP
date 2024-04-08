@@ -141,56 +141,6 @@ fun isMovieInFavoritos(favoritosList : List<FavoritosModel>, movieId: Int): Bool
 @Composable
 fun ButtonWithTextField(
     onClick: (String) -> Unit) {
-    var textValue by remember { mutableStateOf("") }
-    var buttonClicked by remember { mutableStateOf(false) }
-
-    val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
-        focusedBorderColor = Color.White, // Color de la línea cuando el TextField está enfocado
-        textColor = Color.White,
-        backgroundColor = Color.Black, // Cambia el color de fondo del TextField
-    )
-
-
-    Row(
-        modifier = Modifier.padding(5.dp),
-        verticalAlignment = Alignment.CenterVertically
-        ) {
-
-//34
-        OutlinedTextField(
-            visualTransformation = VisualTransformation.None,
-            label = { Text("Buscar") },
-            value = textValue,
-            onValueChange = { textValue = it },
-            colors = textFieldColors,
-            textStyle = TextStyle(fontSize = 16.sp) ,// Cambia el tamaño del texto a 16sp,
-            singleLine = true
-        )
-
-        IconButton(
-            onClick = {
-                onClick(textValue)
-            }
-
-                //moviesViewModel.fetchMoviesByName(textValue,"1990") //pasarle tu el onclick
-            ,
-            content = {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = "Accept"
-                )
-            },
-        )
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        if (buttonClicked) {
-            Text(
-                text = "You entered: $textValue",
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-    }
 
 }
 

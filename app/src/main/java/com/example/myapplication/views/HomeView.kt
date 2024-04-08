@@ -5,12 +5,20 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.IconButton
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -30,22 +38,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myapplication.components.ButtonWithTextField
 import com.example.myapplication.components.DropdownList
 import com.example.myapplication.components.MovieCard
 import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.model.MovieData
 import com.example.myapplication.ui.theme.SecondaryColor
-import com.example.myapplication.util.UiStateApiSingleMovie
+import com.example.myapplication.util.UiStateApiMovies
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -75,14 +84,14 @@ fun HomeView(
 
 
     when (movies) {
-        is UiStateApiSingleMovie.Loading -> showLoading()
-        is UiStateApiSingleMovie.Success -> showContentHomeView(
-            (movies as UiStateApiSingleMovie.Success).movieData,
+        is UiStateApiMovies.Loading -> showLoading()
+        is UiStateApiMovies.Success -> showContentHomeView(
+            (movies as UiStateApiMovies.Success).movieData,
             favoritos,
             nav,
             viewModel
         )
-        is UiStateApiSingleMovie.Error ->nav.navigate("ErrorInternet/Home")
+        is UiStateApiMovies.Error ->nav.navigate("ErrorInternet/Home")
     }
 }
 
@@ -116,9 +125,12 @@ fun showContentHomeView(
         itemList.add(year.toString())
     }
 
+    val uiStateHomeView by viewModel.uiStateHomeView.collectAsState()
+
+
     var selectedIndex by rememberSaveable { mutableStateOf(0) } //investigar como funciona los remember y eso
 
-    var selectedYear: String by remember { mutableStateOf("") }
+//    var selectedYear: String by remember { mutableStateOf("") }
 
     //Scroll de las peliculas
 
@@ -172,20 +184,52 @@ fun showContentHomeView(
             itemList = itemList,
             selectedIndex = selectedIndex,
             onItemClick = { index, item ->
-                selectedYear = item
+                uiStateHomeView.yearSelected = item
                 selectedIndex = index
             })
 
 
-        ButtonWithTextField(
-            onClick = {
-                viewModel.fetchMoviesByName(
-                    it,
-                    selectedYear
-                ) //el it se lo pasa el ButtonWithTextField a traves del onclick
+        val textFieldColors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = Color.White, // Color de la línea cuando el TextField está enfocado
+            textColor = Color.White,
+            backgroundColor = Color.Black, // Cambia el color de fondo del TextField
+        )
 
-            })
 
+        Row(
+            modifier = Modifier.padding(5.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+//34
+            OutlinedTextField(
+                visualTransformation = VisualTransformation.None,
+                label = { androidx.compose.material3.Text("Buscar") },
+                value = uiStateHomeView.searchText?: "" ,
+                onValueChange = { uiStateHomeView.searchText = it },
+                colors = textFieldColors,
+                textStyle = TextStyle(fontSize = 16.sp) ,// Cambia el tamaño del texto a 16sp,
+                singleLine = true
+            )
+
+            IconButton(
+                onClick = {
+                    viewModel.fetchMoviesByName(
+                        uiStateHomeView.searchText?: "",
+                        uiStateHomeView.yearSelected
+                    ) //el it se lo pasa el ButtonWithTextField a traves del onclick
+                }
+
+                //moviesViewModel.fetchMoviesByName(textValue,"1990") //pasarle tu el onclick
+                ,
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Accept"
+                    )
+                },
+            )
+        }
 
 
 
