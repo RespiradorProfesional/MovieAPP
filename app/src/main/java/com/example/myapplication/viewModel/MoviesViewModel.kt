@@ -7,6 +7,7 @@ import com.example.myapplication.repository.MoviesRepository
 import com.example.myapplication.util.NetworkStatus
 import com.example.myapplication.util.StateApiMovies
 import com.example.myapplication.util.StateApiSingleMovie
+import com.example.myapplication.util.UiStateDetailView
 import com.example.myapplication.util.UiStateHomeView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -37,10 +38,6 @@ class MoviesViewModel @Inject constructor(
 //
 //    val movies = _movies
 
-    private val _singleMovie =
-        MutableStateFlow<StateApiSingleMovie>(StateApiSingleMovie.Loading)
-    val singleMovie = _singleMovie
-
     private val _uiStateHomeView = MutableStateFlow(
         UiStateHomeView(
             StateApiMovies.Loading,
@@ -50,6 +47,13 @@ class MoviesViewModel @Inject constructor(
     )
     val uiStateHomeView = _uiStateHomeView.asStateFlow()
 
+    private val _uiStateDetailView= MutableStateFlow(
+        UiStateDetailView(
+            StateApiSingleMovie.Loading
+        )
+    )
+
+    val uiStateDetailView = _uiStateDetailView.asStateFlow()
 
     //no se actualiza el contenido si intento hacer fetch en el homeView cada vez que se inicia
     //si hago eso funciona el recargar, pero al segundo intento ya que el loading es solo cuando inicia la app
@@ -107,8 +111,12 @@ class MoviesViewModel @Inject constructor(
     fun getMovieById(id: Int) {
         viewModelScope.launch(Dispatchers.IO) {
 
+
             val result = repo.getMovieById(id)
-            _singleMovie.value = result
+
+            _uiStateDetailView.value= _uiStateDetailView.value.copy(
+                apiMovies = result
+            )
 
         }
     }

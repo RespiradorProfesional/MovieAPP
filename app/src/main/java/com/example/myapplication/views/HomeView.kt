@@ -65,6 +65,10 @@ fun HomeView(
     viewModelFavoritos: FavoritosViewModel
 ) {
 
+
+    //pasa por aqui cada vez que se actualiza movies
+
+
     //quitar esto y hacerlo con el init
 
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
@@ -75,7 +79,7 @@ fun HomeView(
 
 
 
-    when (uiStateHomeView.apiMovies) {
+    when(uiStateHomeView.apiMovies) {
         is StateApiMovies.Loading -> showLoading()
         is StateApiMovies.Success -> showContentHomeView(
             uiStateHomeView,

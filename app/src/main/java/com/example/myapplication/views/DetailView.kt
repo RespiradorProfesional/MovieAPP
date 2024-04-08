@@ -42,18 +42,17 @@ import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosViewModel, id: Int,nav:NavController) {
 
     viewModelMovies.getMovieById(id)
 
-    val movie by viewModelMovies.singleMovie.collectAsState()
+    val uiStateDetailView by viewModelMovies.uiStateDetailView.collectAsState()
 
-    when (movie) {
+    when (uiStateDetailView.apiMovies) {
         is StateApiSingleMovie.Loading -> showLoading()
         is StateApiSingleMovie.Success -> showContentDetailView(
-            (movie as StateApiSingleMovie.Success).singleMovieModel,
+            (uiStateDetailView.apiMovies as StateApiSingleMovie.Success).singleMovieModel,
             viewModelFavoritos,
             id
         )
