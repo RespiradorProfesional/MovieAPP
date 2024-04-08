@@ -41,7 +41,10 @@ fun ErrorInternetView(nav: NavController, viewModel: MoviesViewModel, route : St
                 val currentStatus = networkStatus.value
 
                 Log.d("Ruta " , finalRoute)
-                if (currentStatus is NetworkStatus.Connected) nav.navigate(finalRoute)
+                if (currentStatus is NetworkStatus.Connected){
+                    if (finalRoute.equals("Home")) viewModel.fetchRetryData()
+                    nav.navigate(finalRoute)
+                }
 
 
             },

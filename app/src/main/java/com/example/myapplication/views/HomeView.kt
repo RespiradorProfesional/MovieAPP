@@ -65,12 +65,6 @@ fun HomeView(
     viewModelFavoritos: FavoritosViewModel
 ) {
 
-
-    //pasa por aqui cada vez que se actualiza movies
-
-
-
-    viewModel.fetchData()
     //quitar esto y hacerlo con el init
 
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()

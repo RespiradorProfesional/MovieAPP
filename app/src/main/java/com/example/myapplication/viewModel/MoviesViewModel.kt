@@ -54,8 +54,11 @@ class MoviesViewModel @Inject constructor(
     //no se actualiza el contenido si intento hacer fetch en el homeView cada vez que se inicia
     //si hago eso funciona el recargar, pero al segundo intento ya que el loading es solo cuando inicia la app
 
+    init {
+        fetchMovies(1)
+    }
 
-    fun fetchData() {
+    fun fetchRetryData() {
         if (firtsFetch) {
             _uiStateHomeView.value = _uiStateHomeView.value.copy(
                 apiMovies = StateApiMovies.Loading
