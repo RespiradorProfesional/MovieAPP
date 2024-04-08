@@ -47,6 +47,8 @@ fun FavoritosView(viewModel: FavoritosViewModel, nav: NavController) {
 
     var searchText by remember { mutableStateOf("") }
     val favoritos by viewModel.favoritosList.collectAsState()
+// hacer el uiState
+
 
     Column(
         modifier = Modifier

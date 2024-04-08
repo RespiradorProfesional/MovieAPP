@@ -1,7 +1,6 @@
 package com.example.myapplication.views
 
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -52,9 +51,9 @@ import com.example.myapplication.components.DropdownList
 import com.example.myapplication.components.MovieCard
 import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
-import com.example.myapplication.model.MovieData
 import com.example.myapplication.ui.theme.SecondaryColor
-import com.example.myapplication.util.UiStateApiMovies
+import com.example.myapplication.util.StateApiMovies
+import com.example.myapplication.util.UiStateHomeView
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -72,26 +71,25 @@ fun HomeView(
 
 
     viewModel.fetchData()
+    //quitar esto y hacerlo con el init
 
     val favoritos by viewModelFavoritos.favoritosList.collectAsState()
-    val movies by viewModel.movies.collectAsState()
 
+    val uiStateHomeView by viewModel.uiStateHomeView.collectAsState()
 
     //pasa por aqui cada vez que se actualiza movies
 
 
-    Log.d("Conexion peliculas " , movies.toString())
 
-
-    when (movies) {
-        is UiStateApiMovies.Loading -> showLoading()
-        is UiStateApiMovies.Success -> showContentHomeView(
-            (movies as UiStateApiMovies.Success).movieData,
+    when (uiStateHomeView.apiMovies) {
+        is StateApiMovies.Loading -> showLoading()
+        is StateApiMovies.Success -> showContentHomeView(
+            uiStateHomeView,
             favoritos,
             nav,
             viewModel
         )
-        is UiStateApiMovies.Error ->nav.navigate("ErrorInternet/Home")
+        is StateApiMovies.Error ->nav.navigate("ErrorInternet/Home")
     }
 }
 
@@ -99,12 +97,13 @@ fun HomeView(
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
 fun showContentHomeView(
-    movies: List<MovieData>,
+    uiStateHomeView: UiStateHomeView,
     favoritos: List<FavoritosModel>,
     nav: NavController,
     viewModel: MoviesViewModel
 ) {
 
+    var movies =  (uiStateHomeView.apiMovies as StateApiMovies.Success).movieData
     viewModel.firtsFetch=false
     //Configuracion del movil
 
@@ -121,11 +120,10 @@ fun showContentHomeView(
 
     val itemList = mutableListOf<String>()
 
-    for (year in 1890..2024) {
+    for (year in 1895..2024) {
         itemList.add(year.toString())
     }
 
-    val uiStateHomeView by viewModel.uiStateHomeView.collectAsState()
 
 
     var selectedIndex by rememberSaveable { mutableStateOf(0) } //investigar como funciona los remember y eso
@@ -184,7 +182,7 @@ fun showContentHomeView(
             itemList = itemList,
             selectedIndex = selectedIndex,
             onItemClick = { index, item ->
-                uiStateHomeView.yearSelected = item
+                viewModel.onFilterChange(item)
                 selectedIndex = index
             })
 
@@ -206,7 +204,7 @@ fun showContentHomeView(
                 visualTransformation = VisualTransformation.None,
                 label = { androidx.compose.material3.Text("Buscar") },
                 value = uiStateHomeView.searchText?: "" ,
-                onValueChange = { uiStateHomeView.searchText = it },
+                onValueChange = { viewModel.onSearchTextChange(it) },
                 colors = textFieldColors,
                 textStyle = TextStyle(fontSize = 16.sp) ,// Cambia el tamaño del texto a 16sp,
                 singleLine = true

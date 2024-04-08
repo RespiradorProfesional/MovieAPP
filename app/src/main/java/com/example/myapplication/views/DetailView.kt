@@ -37,7 +37,7 @@ import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.model.SingleMovieModel
 import com.example.myapplication.ui.theme.White
-import com.example.myapplication.util.UiStateApiSingleMovie
+import com.example.myapplication.util.StateApiSingleMovie
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -51,13 +51,13 @@ fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosVi
     val movie by viewModelMovies.singleMovie.collectAsState()
 
     when (movie) {
-        is UiStateApiSingleMovie.Loading -> showLoading()
-        is UiStateApiSingleMovie.Success -> showContentDetailView(
-            (movie as UiStateApiSingleMovie.Success).singleMovieModel,
+        is StateApiSingleMovie.Loading -> showLoading()
+        is StateApiSingleMovie.Success -> showContentDetailView(
+            (movie as StateApiSingleMovie.Success).singleMovieModel,
             viewModelFavoritos,
             id
         )
-        is UiStateApiSingleMovie.Error -> nav.navigate("ErrorInternet/DetailView$id")
+        is StateApiSingleMovie.Error -> nav.navigate("ErrorInternet/DetailView$id")
     }
 }
 

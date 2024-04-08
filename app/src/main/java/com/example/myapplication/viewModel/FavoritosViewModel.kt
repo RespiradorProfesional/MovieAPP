@@ -1,5 +1,6 @@
 package com.example.myapplication.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.FavoritosModel
@@ -18,6 +19,7 @@ class FavoritosViewModel @Inject constructor(private val repo: FavoritosReposito
 
     init {
         viewModelScope.launch(Dispatchers.IO){
+            Log.d("se repite " , "s")
             repo.getAllFavoritos().collect{
                     item->
                 if (item.isNullOrEmpty()){

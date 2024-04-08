@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapplication.network.NetworkConnectivityService
 import com.example.myapplication.repository.MoviesRepository
 import com.example.myapplication.util.NetworkStatus
-import com.example.myapplication.util.UiStateApiMovies
-import com.example.myapplication.util.UiStateApiSingleMovie
+import com.example.myapplication.util.StateApiMovies
+import com.example.myapplication.util.StateApiSingleMovie
 import com.example.myapplication.util.UiStateHomeView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,18 +33,17 @@ class MoviesViewModel @Inject constructor(
         started = WhileSubscribed(5000)
     )
 
-    private val _movies = MutableStateFlow<UiStateApiMovies>(UiStateApiMovies.Loading)
-
-    // Exponer la lista de peliculas como un StateFlow para observar cambios
-    val movies = _movies.asStateFlow()
+//    private val _movies = MutableStateFlow<StateApiMovies>(StateApiMovies.Loading)
+//
+//    val movies = _movies
 
     private val _singleMovie =
-        MutableStateFlow<UiStateApiSingleMovie>(UiStateApiSingleMovie.Loading)
-    val singleMovie = _singleMovie.asStateFlow()
+        MutableStateFlow<StateApiSingleMovie>(StateApiSingleMovie.Loading)
+    val singleMovie = _singleMovie
 
     private val _uiStateHomeView = MutableStateFlow(
         UiStateHomeView(
-            movies,
+            StateApiMovies.Loading,
             "",
             ""
         )
@@ -58,7 +57,9 @@ class MoviesViewModel @Inject constructor(
 
     fun fetchData() {
         if (firtsFetch) {
-            _movies.value = UiStateApiMovies.Loading
+            _uiStateHomeView.value = _uiStateHomeView.value.copy(
+                apiMovies = StateApiMovies.Loading
+            )
             fetchMovies(1)
         }
     }
@@ -67,8 +68,10 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             val result = repo.getMovies(page)
-            _movies.value = result
-
+            //_uiStateHomeView.getAndUpdate { it.copy(apiMovies = result) }
+            _uiStateHomeView.value = _uiStateHomeView.value.copy(
+                apiMovies = result
+            )
         }
     }
 
@@ -76,9 +79,12 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             actualPage += 1
             val result = repo.getMovies(actualPage)
-            val list =
-                (_movies.value as UiStateApiMovies.Success).movieData.plus((result as UiStateApiMovies.Success).movieData)
-            _movies.value = UiStateApiMovies.Success(list)
+            val list = (_uiStateHomeView.value.apiMovies as StateApiMovies.Success).movieData.plus((result as StateApiMovies.Success).movieData)
+
+            _uiStateHomeView.value = _uiStateHomeView.value.copy(
+                apiMovies = StateApiMovies.Success(list)
+            )
+
         }
     }
 
@@ -87,7 +93,9 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
 
             val result = repo.getMoviesByName(name, year)
-            _movies.value = result
+            _uiStateHomeView.value = _uiStateHomeView.value.copy(
+                apiMovies = result
+            )
 
         }
     }
@@ -103,13 +111,13 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun onSearchTextChange(text: String) {
-        val currentText = _uiStateHomeView.value ?: return
+        val currentText = _uiStateHomeView.value
         val updateText = currentText.copy(searchText = text)
         _uiStateHomeView.value = updateText
     }
 
     fun onFilterChange(year: String) {
-        val currentYear = _uiStateHomeView.value ?: return
+        val currentYear = _uiStateHomeView.value
         val updateYear = currentYear.copy(yearSelected = year)
         _uiStateHomeView.value = updateYear
     }

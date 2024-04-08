@@ -3,11 +3,11 @@ package com.example.myapplication.util
 
 import com.example.myapplication.model.MovieData
 
-sealed class UiStateApiMovies {
+sealed class StateApiMovies {
 
-    data object Loading : UiStateApiMovies()
-    data class Success(val movieData: List<MovieData>) : UiStateApiMovies()
-    data class Error(val message: String) : UiStateApiMovies()
+    data object Loading : StateApiMovies()
+    data class Success(val movieData: List<MovieData>) : StateApiMovies()
+    data class Error(val message: String) : StateApiMovies()
 }
 
 
