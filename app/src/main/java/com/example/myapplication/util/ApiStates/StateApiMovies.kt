@@ -1,4 +1,4 @@
-package com.example.myapplication.util
+package com.example.myapplication.util.ApiStates
 
 
 import com.example.myapplication.model.MovieData

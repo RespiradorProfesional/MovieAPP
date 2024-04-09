@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.repository.FavoritosRepository
+import com.example.myapplication.util.UiEvents.UiEventDetailView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +17,15 @@ import javax.inject.Inject
 class FavoritosViewModel @Inject constructor(private val repo: FavoritosRepository): ViewModel() {
     private val _favoritosList = MutableStateFlow<List<FavoritosModel>>(emptyList())
     val favoritosList =_favoritosList.asStateFlow()
+
+    fun onEvent(event: UiEventDetailView) {
+        when (event) {
+            is UiEventDetailView.AddRemoveFavorite -> {
+                if (event.inFavorites) deleteFavorito(event.favoriteModel)
+                else addFavorito(event.favoriteModel)
+            }
+        }
+    }
 
     init {
         viewModelScope.launch(Dispatchers.IO){

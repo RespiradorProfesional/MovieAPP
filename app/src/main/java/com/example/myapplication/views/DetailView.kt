@@ -13,6 +13,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -20,6 +25,9 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -30,20 +38,27 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.myapplication.components.likeButton
+import com.example.myapplication.components.BottomNavigationItem
+import com.example.myapplication.components.isMovieInFavoritos
 import com.example.myapplication.components.painterForNulls
 import com.example.myapplication.components.profileCard
 import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.model.SingleMovieModel
 import com.example.myapplication.ui.theme.White
-import com.example.myapplication.util.StateApiSingleMovie
+import com.example.myapplication.util.ApiStates.StateApiSingleMovie
+import com.example.myapplication.util.UiEvents.UiEventDetailView
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
 
 @Composable
-fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosViewModel, id: Int,nav:NavController) {
+fun DetailView(
+    viewModelMovies: MoviesViewModel,
+    viewModelFavoritos: FavoritosViewModel,
+    id: Int,
+    nav: NavController
+) {
 
     viewModelMovies.getMovieById(id)
 
@@ -56,6 +71,7 @@ fun DetailView(viewModelMovies: MoviesViewModel, viewModelFavoritos: FavoritosVi
             viewModelFavoritos,
             id
         )
+
         is StateApiSingleMovie.Error -> nav.navigate("ErrorInternet/DetailView$id")
     }
 }
@@ -69,7 +85,14 @@ fun showContentDetailView(
     id: Int
 ) {
 
-  val configuration = LocalConfiguration.current //coge la configuracion del movil actual
+    val favoritosModel = FavoritosModel(
+        id = id,
+        poster_path = movie?.poster_path ?: "",
+        title = movie?.title ?: "",
+        overview = movie?.overview ?: ""
+    )
+
+    val configuration = LocalConfiguration.current //coge la configuracion del movil actual
     val size = DpSize(configuration.screenWidthDp.dp, configuration.screenHeightDp.dp)
     //en tamaño Dp se calcula del tamaño tanto alto como ancho del movil
 
@@ -126,17 +149,32 @@ fun showContentDetailView(
             color = White,
         )
 
+        var isFavorite by remember { mutableStateOf(false) }
 
+        isFavorite = isMovieInFavoritos(favoritos, favoritosModel.id)
 
-        likeButton(
-            viewModelFavorito = viewModelFavoritos, favoritosList = favoritos, favoritosModel =
-            FavoritosModel(
-                id = id,
-                poster_path = movie?.poster_path ?: "",
-                title = movie?.title ?: "",
-                overview = movie?.overview ?: ""
-            )
+        BottomNavigationItem(
+            title = "Favorites",
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home,
+            hasNews = false,
         )
+
+        Button(
+            modifier = Modifier
+                .padding(8.dp),
+            // .align(Alignment.CenterHorizontally),
+            onClick = {
+                      viewModelFavoritos.onEvent(UiEventDetailView.AddRemoveFavorite(isFavorite,favoritosModel))
+            },
+
+
+            ) {
+            Icon(
+                imageVector = if (isFavorite) Icons.Filled.Home else Icons.Outlined.Home,
+                contentDescription = "Favorite"
+            )
+        }
 
         val castList = movie?.credits?.cast
 

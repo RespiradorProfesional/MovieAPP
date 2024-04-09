@@ -52,8 +52,9 @@ import com.example.myapplication.components.MovieCard
 import com.example.myapplication.components.showLoading
 import com.example.myapplication.model.FavoritosModel
 import com.example.myapplication.ui.theme.SecondaryColor
-import com.example.myapplication.util.StateApiMovies
-import com.example.myapplication.util.UiStateHomeView
+import com.example.myapplication.util.ApiStates.StateApiMovies
+import com.example.myapplication.util.UiEvents.UiEventHomeView
+import com.example.myapplication.util.UiStates.UiStateHomeView
 import com.example.myapplication.viewModel.FavoritosViewModel
 import com.example.myapplication.viewModel.MoviesViewModel
 
@@ -78,8 +79,7 @@ fun HomeView(
     //pasa por aqui cada vez que se actualiza movies
 
 
-
-    when(uiStateHomeView.apiMovies) {
+    when (uiStateHomeView.apiMovies) {
         is StateApiMovies.Loading -> showLoading()
         is StateApiMovies.Success -> showContentHomeView(
             uiStateHomeView,
@@ -87,7 +87,8 @@ fun HomeView(
             nav,
             viewModel
         )
-        is StateApiMovies.Error ->nav.navigate("ErrorInternet/Home")
+
+        is StateApiMovies.Error -> nav.navigate("ErrorInternet/Home")
     }
 }
 
@@ -101,8 +102,8 @@ fun showContentHomeView(
     viewModel: MoviesViewModel
 ) {
 
-    var movies =  (uiStateHomeView.apiMovies as StateApiMovies.Success).movieData
-    viewModel.firtsFetch=false
+    var movies = (uiStateHomeView.apiMovies as StateApiMovies.Success).movieData
+    viewModel.firtsFetch = false
     //Configuracion del movil
 
     val configuration = LocalConfiguration.current //coge la configuracion del movil actual
@@ -121,7 +122,6 @@ fun showContentHomeView(
     for (year in 1895..2024) {
         itemList.add(year.toString())
     }
-
 
 
     var selectedIndex by rememberSaveable { mutableStateOf(0) } //investigar como funciona los remember y eso
@@ -180,7 +180,7 @@ fun showContentHomeView(
             itemList = itemList,
             selectedIndex = selectedIndex,
             onItemClick = { index, item ->
-                viewModel.onFilterChange(item)
+                viewModel.onEvent(UiEventHomeView.changeFilter(item))
                 selectedIndex = index
             })
 
@@ -201,23 +201,19 @@ fun showContentHomeView(
             OutlinedTextField(
                 visualTransformation = VisualTransformation.None,
                 label = { androidx.compose.material3.Text("Buscar") },
-                value = uiStateHomeView.searchText?: "" ,
+                value = uiStateHomeView.searchText ?: "",
                 onValueChange = { viewModel.onSearchTextChange(it) },
                 colors = textFieldColors,
-                textStyle = TextStyle(fontSize = 16.sp) ,// Cambia el tamaño del texto a 16sp,
+                textStyle = TextStyle(fontSize = 16.sp),// Cambia el tamaño del texto a 16sp,
                 singleLine = true
             )
 
             IconButton(
                 onClick = {
-                    viewModel.fetchMoviesByName(
-                        uiStateHomeView.searchText?: "",
-                        uiStateHomeView.yearSelected
-                    ) //el it se lo pasa el ButtonWithTextField a traves del onclick
-                }
+                    viewModel.onEvent(UiEventHomeView.SearchMovie(uiStateHomeView.searchText ?: "", uiStateHomeView.yearSelected))
+                },
 
                 //moviesViewModel.fetchMoviesByName(textValue,"1990") //pasarle tu el onclick
-                ,
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Search,

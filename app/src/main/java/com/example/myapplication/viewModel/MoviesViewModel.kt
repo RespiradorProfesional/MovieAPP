@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.network.NetworkConnectivityService
 import com.example.myapplication.repository.MoviesRepository
+import com.example.myapplication.util.ApiStates.StateApiMovies
+import com.example.myapplication.util.ApiStates.StateApiSingleMovie
 import com.example.myapplication.util.NetworkStatus
-import com.example.myapplication.util.StateApiMovies
-import com.example.myapplication.util.StateApiSingleMovie
-import com.example.myapplication.util.UiStateDetailView
-import com.example.myapplication.util.UiStateHomeView
+import com.example.myapplication.util.UiEvents.UiEventHomeView
+import com.example.myapplication.util.UiStates.UiStateDetailView
+import com.example.myapplication.util.UiStates.UiStateHomeView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,6 +119,18 @@ class MoviesViewModel @Inject constructor(
                 apiMovies = result
             )
 
+        }
+    }
+
+    fun onEvent(event: UiEventHomeView) {
+        when (event) {
+            is UiEventHomeView.SearchMovie -> {
+                fetchMoviesByName(event.name,event.year)
+            }
+
+            is UiEventHomeView.changeFilter -> {
+                onFilterChange(event.year)
+            }
         }
     }
 

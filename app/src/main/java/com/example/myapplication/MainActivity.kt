@@ -29,12 +29,7 @@ class MainActivity : ComponentActivity() {
 
 /**
  * Cosas a hacer:
- * - Mirar logs de las llamadas api
- * - Comprobar si hay conexion a internet
- * - Catchear en todos las consultas a la api si no hay internet
- * - el repositorio debe devolver directamente el uiState respondiente
- * - Mirar los eventos y como administrarlos
- * - Realizar el UiState en demas pantallas
+ * - LOS EVENTSO son el boton de buscar, filtro y favoritos boton guardar
  */
 
 /**

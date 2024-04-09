@@ -2,14 +2,14 @@ package com.example.myapplication.repository
 
 import android.util.Log
 import com.example.myapplication.data.MovieApi
-import com.example.myapplication.util.StateApiMovies
-import com.example.myapplication.util.StateApiSingleMovie
+import com.example.myapplication.util.ApiStates.StateApiMovies
+import com.example.myapplication.util.ApiStates.StateApiSingleMovie
 import javax.inject.Inject
 
 class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
 
-    suspend fun getMovies(page : Int):  StateApiMovies{
+    suspend fun getMovies(page : Int): StateApiMovies {
 
         try {
             val responseApi=movieApi.getMovies(page)
@@ -27,7 +27,7 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
     }
 
-    suspend fun getMoviesByName(name :String,year:String?): StateApiMovies{
+    suspend fun getMoviesByName(name :String,year:String?): StateApiMovies {
         try {
             val responseApi=movieApi.getMoviesByName(name,year)
 
@@ -43,7 +43,7 @@ class MoviesRepository @Inject constructor(private val movieApi:MovieApi){
 
     }
 
-    suspend fun getMovieById(id:Int): StateApiSingleMovie{
+    suspend fun getMovieById(id:Int): StateApiSingleMovie {
 
         try {
             val responseApi=movieApi.getMovieById(id)
