@@ -129,15 +129,15 @@ fun isMovieInFavoritos(favoritosList : List<FavoritosModel>, movieId: Int): Bool
 }
 
 @Composable
-fun FilterChipExample(title: String, selected2: (Boolean, String) -> Unit) {
+fun FilterChipExample( title :String,selected2: (Boolean) -> Unit) {
     var selected by remember { mutableStateOf(false) }
 
 
     FilterChip(
         onClick = {
             selected = !selected
-            Log.d("Click en filtro ", ""+selected)
-            selected2(selected, title)
+            selected2(selected)
+            Log.d("Envio de filtro $title", "$selected")
         },
         label = {
             Text(title)

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,7 +44,6 @@ import com.example.myapplication.components.FilterChipExample
 import com.example.myapplication.components.MovieCard
 import com.example.myapplication.ui.theme.SecondaryColor
 import com.example.myapplication.viewModel.MoviesViewModel
-
 
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -81,7 +81,10 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
 
     val movies by viewModel.movies.collectAsState()
 
-    Log.d("items actualizacion" , ""+items[1].selected)
+
+    /**
+     * al clickar este se posiciona el primero y esta en true, pero el aspecto de true lo recibe otro en la forma visual
+     */
 
     // Contenedor para el TextField y el FilterChip
     Column(
@@ -114,32 +117,45 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
         ButtonWithTextField(viewModel)
 
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.horizontalScroll(rememberScrollState())
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            for (item in items) {
-                Log.d("Filtro en for" , ""+item.selected)
-                if (item.selected){
-                    FilterChipExample(item.title,
-                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro, aqui recogen el selected 2 pasado por la funcion
-                            if (isSelected) {
-
-                                items.first { it.title.equals(title)}.selected = isSelected
-                            }
-                        })
-                }else{
-                    FilterChipExample(item.title,
-                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro
-                            if (!isSelected) {
-                                Log.d("Is selected", "Seleccionado")
-                                items.first { it.title .equals(title)  }.selected = isSelected
-                            }
-                        })
-                }
-
+            val sortedItems = items.sortedByDescending { it.selected }  //funciona raro, ya que no se detecta del todo cuando se activa o no
+            items(sortedItems) { item ->
+                FilterChipExample(
+                    item.title,
+                    selected2 = { newSelected ->
+                        val updatedItems =
+                            items.map { if (it.title == item.title) it.copy(selected = newSelected) else it }
+                        viewModel.setItems(updatedItems)
+                    }
+                )
             }
+
         }
+
+//            for (item in items) {
+//                Log.d("Filtro en for" , ""+item.selected)
+//                if (item.selected){
+//                    FilterChipExample(item.title,
+//                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro, aqui recogen el selected 2 pasado por la funcion
+//                            if (isSelected) {
+//
+//                                items.first { it.title.equals(title)}.selected = isSelected
+//                            }
+//                        })
+//                }else{
+//                    FilterChipExample(item.title,
+//                        selected2 = { isSelected, title ->  //los Unit te permiten cambiar al padre segun el parametro
+//                            if (!isSelected) {
+//                                Log.d("Is selected", "Seleccionado")
+//                                items.first { it.title .equals(title)  }.selected = isSelected
+//                            }
+//                        })
+//                }
+//
+//            }
+
 
         Text(
             fontSize = 25.sp,
@@ -162,9 +178,9 @@ fun HomeView(viewModel: MoviesViewModel, nav: NavController) {
             }
         }
 
-
     }
 }
+
 
 
 

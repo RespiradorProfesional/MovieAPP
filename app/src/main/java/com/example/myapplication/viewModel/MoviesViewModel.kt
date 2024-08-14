@@ -9,6 +9,7 @@ import com.example.myapplication.repository.MoviesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
@@ -24,17 +25,19 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
 
     var actualPage=1;
 
-    var _items =  MutableStateFlow(
+    private val _items = MutableStateFlow(
         listOf(
             FilterItem("Terror", false),
             FilterItem("Accion", false),
             FilterItem("Aventura", false)
         )
     )
+    val items: StateFlow<List<FilterItem>> = _items
 
-    val items=_items.asStateFlow()
-
-
+    // Función para actualizar la lista de items
+    fun setItems(newItems: List<FilterItem>) {
+        _items.value = newItems
+    }
 
     private val _singleMovie = MutableStateFlow<SingleMovieModel?>(null)
     val singleMovie = _singleMovie.asStateFlow()
@@ -43,7 +46,6 @@ class MoviesViewModel @Inject constructor(private val repo: MoviesRepository): V
     init {
         fetchMovies(1)
     }
-
 
     fun fetchMovies(page: Int){
         viewModelScope.launch{
