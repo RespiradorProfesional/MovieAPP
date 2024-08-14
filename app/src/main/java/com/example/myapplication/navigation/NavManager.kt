@@ -107,7 +107,7 @@ fun NavManager(viewModelMovies:MoviesViewModel, viewModelFavoritos: FavoritosVie
             
             composable("Home"){
 
-                HomeView(viewModelMovies, navController)
+                HomeView(viewModelMovies, navController,viewModelFavoritos)
             }
 
             composable(route = "Favoritos") {

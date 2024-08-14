@@ -14,7 +14,7 @@ interface MovieApi {
     suspend fun getMovies(@Query("page") page: Int): Response<MoviesModel>
 
     @GET("search/movie$API_KEY")
-    suspend fun getMoviesByName(@Query("query") tituloPelicula: String): Response<MoviesModel>
+    suspend fun getMoviesByName(@Query("query") tituloPelicula: String, @Query("year") year : String?): Response<MoviesModel>
 
     @GET("$ENDPOINT/{id}$API_KEY&append_to_response=credits")
     suspend fun getMovieById (@Path(value="id")id:Int): Response <SingleMovieModel>
